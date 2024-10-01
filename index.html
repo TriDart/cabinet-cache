@@ -1,10 +1,11 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styles.css">
-    <title>Drawing app</title>
+    <title>Drawing App</title>
 </head>
 <body>
     <section class="container">
@@ -15,6 +16,24 @@
             <label for="lineWidth">Line Width</label>
             <input id="lineWidth" name='lineWidth' type="number" value="5">
             <button id="clear">Clear</button>
+            
+            <!-- New text input section -->
+            <label for="textInput">Text</label>
+            <input id="textInput" name='textInput' type="text">
+            <button id="addText">Add Text</button>
+
+            <!-- New font controls -->
+            <label for="fontSize">Font Size</label>
+            <input id="fontSize" type="number" value="20">
+            
+            <label for="fontStyle">Font Style</label>
+            <select id="fontStyle">
+                <option value="Arial">Arial</option>
+                <option value="Courier">Courier</option>
+                <option value="Georgia">Georgia</option>
+                <option value="Times New Roman">Times New Roman</option>
+                <option value="Verdana">Verdana</option>
+            </select>
         </div>
         <div class="drawing-board">
             <canvas id="drawing-board"></canvas>
@@ -23,34 +42,3 @@
     <script src="./index.js"></script>
 </body>
 </html>
-<section class="container">
-    <div id="toolbar">
-        <h1>Draw.</h1>
-        <label for="stroke">Stroke</label>
-        <input id="stroke" name='stroke' type="color">
-        <label for="lineWidth">Line Width</label>
-        <input id="lineWidth" name='lineWidth' type="number" value="5">
-        <button id="clear">Clear</button>
-        
-        <!-- New text input section -->
-        <label for="textInput">Text</label>
-        <input id="textInput" name='textInput' type="text">
-        <button id="addText">Add Text</button>
-
-        <!-- New font controls -->
-        <label for="fontSize">Font Size</label>
-        <input id="fontSize" type="number" value="20">
-        
-        <label for="fontStyle">Font Style</label>
-        <select id="fontStyle">
-            <option value="Arial">Arial</option>
-            <option value="Courier">Courier</option>
-            <option value="Georgia">Georgia</option>
-            <option value="Times New Roman">Times New Roman</option>
-            <option value="Verdana">Verdana</option>
-        </select>
-    </div>
-    <div class="drawing-board">
-        <canvas id="drawing-board"></canvas>
-    </div>
-</section>
