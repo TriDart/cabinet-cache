@@ -2,7 +2,7 @@ const canvas = document.getElementById('drawing-board');
 const toolbar = document.getElementById('toolbar');
 const ctx = canvas.getContext('2d');
 
-// Set canvas size
+// Set initial canvas dimensions
 canvas.width = window.innerWidth - toolbar.offsetWidth;
 canvas.height = window.innerHeight;
 
@@ -19,15 +19,13 @@ let offsetY = 0;
 let startX;
 let startY;
 
-// Clear the canvas
 toolbar.addEventListener('click', e => {
     if (e.target.id === 'clear') {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.clearRect(-offsetX, -offsetY, canvas.width + offsetX, canvas.height + offsetY);
         textObjects = [];
     }
 });
 
-// Update stroke color and line width
 toolbar.addEventListener('change', e => {
     if (e.target.id === 'stroke') {
         ctx.strokeStyle = e.target.value;
@@ -80,7 +78,7 @@ canvas.addEventListener('mousemove', (e) => {
 window.addEventListener('resize', () => {
     canvas.width = window.innerWidth - toolbar.offsetWidth;
     canvas.height = window.innerHeight;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(-offsetX, -offsetY, canvas.width + offsetX, canvas.height + offsetY);
     redraw(); // Redraw text on resize
 });
 
@@ -95,8 +93,8 @@ addTextButton.addEventListener('click', () => {
     const fontSize = fontSizeInput.value;
     const fontStyle = fontStyleSelect.value;
 
-    const textX = canvas.width / 2; // Default position
-    const textY = canvas.height / 2; // Default position
+    const textX = canvas.width / 2 + offsetX; // Adjusted position
+    const textY = canvas.height / 2 + offsetY; // Adjusted position
 
     if (text.trim()) {
         textObjects.push({ text, x: textX, y: textY, fontSize, fontStyle });
@@ -107,7 +105,7 @@ addTextButton.addEventListener('click', () => {
 
 // Redraw text function
 function redraw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas before redrawing
+    ctx.clearRect(-offsetX, -offsetY, canvas.width + offsetX, canvas.height + offsetY); // Clear canvas before redrawing
     ctx.save();
     ctx.translate(offsetX, offsetY); // Apply offsets
 
