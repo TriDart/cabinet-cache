@@ -3,8 +3,8 @@ const toolbar = document.getElementById('toolbar');
 const ctx = canvas.getContext('2d');
 
 // Set initial canvas dimensions
-canvas.width = window.innerWidth - toolbar.offsetWidth;
-canvas.height = window.innerHeight;
+canvas.width = 2000; // Start with a large width for infinite scrolling
+canvas.height = 2000; // Start with a large height for infinite scrolling
 
 let isPainting = false;
 let isDragging = false;
@@ -16,16 +16,16 @@ let selectedTextIndex = null;
 
 let offsetX = 0;
 let offsetY = 0;
-let startX;
-let startY;
 
+// Clear the canvas
 toolbar.addEventListener('click', e => {
     if (e.target.id === 'clear') {
-        ctx.clearRect(-offsetX, -offsetY, canvas.width + offsetX, canvas.height + offsetY);
+        ctx.clearRect(-offsetX, -offsetY, canvas.width, canvas.height);
         textObjects = [];
     }
 });
 
+// Update stroke color and line width
 toolbar.addEventListener('change', e => {
     if (e.target.id === 'stroke') {
         ctx.strokeStyle = e.target.value;
@@ -51,10 +51,8 @@ canvas.addEventListener('mousedown', (e) => {
         isDragging = true;
     } else {
         isPainting = true;
-        startX = e.clientX - offsetX - toolbar.offsetWidth;
-        startY = e.clientY - offsetY;
         ctx.beginPath();
-        ctx.moveTo(startX, startY);
+        ctx.moveTo(e.clientX - toolbar.offsetWidth - offsetX, e.clientY - offsetY);
     }
 });
 
@@ -76,10 +74,9 @@ canvas.addEventListener('mousemove', (e) => {
 
 // Handle window resize
 window.addEventListener('resize', () => {
-    canvas.width = window.innerWidth - toolbar.offsetWidth;
-    canvas.height = window.innerHeight;
-    ctx.clearRect(-offsetX, -offsetY, canvas.width + offsetX, canvas.height + offsetY);
-    redraw(); // Redraw text on resize
+    canvas.width = canvas.width; // Keep the canvas large
+    canvas.height = canvas.height; // Keep the canvas large
+    redraw(); // Redraw content on resize
 });
 
 // Text adding functionality
@@ -105,7 +102,7 @@ addTextButton.addEventListener('click', () => {
 
 // Redraw text function
 function redraw() {
-    ctx.clearRect(-offsetX, -offsetY, canvas.width + offsetX, canvas.height + offsetY); // Clear canvas before redrawing
+    ctx.clearRect(-offsetX, -offsetY, canvas.width, canvas.height); // Clear canvas before redrawing
     ctx.save();
     ctx.translate(offsetX, offsetY); // Apply offsets
 
