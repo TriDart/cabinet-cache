@@ -7,10 +7,7 @@ body {
 }
 
 h1 {
-    background: #7F7FD5;
-    background: -webkit-linear-gradient(to right, #91EAE4, #86A8E7, #7F7FD5);
     background: linear-gradient(to right, #91EAE4, #86A8E7, #7F7FD5);
-    background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
@@ -49,14 +46,16 @@ h1 {
 }
 
 .canvas-container {
-    width: calc(100% - 70px); /* Full width minus toolbar */
+    width: calc(100% - 70px);
     height: 100%;
-    overflow: auto; /* Enable scrolling */
-    position: relative; /* Positioning context for the canvas */
+    overflow: auto;
+    position: relative;
 }
 
 #drawing-board {
-    position: absolute; /* Allows for infinite scroll effect */
+    width: 2000px; /* Large width for scrolling */
+    height: 2000px; /* Large height for scrolling */
+    position: absolute; /* Position it absolutely for scrolling */
     top: 0;
     left: 0;
 }
