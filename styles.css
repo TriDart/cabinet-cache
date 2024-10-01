@@ -47,3 +47,16 @@ h1 {
     color: white;
     padding: 2px;
 }
+
+.canvas-container {
+    width: calc(100% - 70px); /* Full width minus toolbar */
+    height: 100%;
+    overflow: auto; /* Enable scrolling */
+    position: relative; /* Positioning context for the canvas */
+}
+
+#drawing-board {
+    position: absolute; /* Allows for infinite scroll effect */
+    top: 0;
+    left: 0;
+}
