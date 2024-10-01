@@ -1,75 +1,55 @@
 const canvas = document.getElementById('drawing-board');
-const toolbar = document.getElementById('toolbar');
 const ctx = canvas.getContext('2d');
 
+// Set initial canvas size
+canvas.width = window.innerWidth - 70; // Account for toolbar width
+canvas.height = window.innerHeight;
+
 let isPainting = false;
-let isDragging = false;
 let lineWidth = 5;
 ctx.strokeStyle = '#000000';
 
-let textObjects = [];
-let selectedTextIndex = null;
+const textObjects = [];
 
-let offsetX = 0;
-let offsetY = 0;
-
-// Clear the canvas
-toolbar.addEventListener('click', e => {
-    if (e.target.id === 'clear') {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        textObjects = [];
-    }
+// Clear canvas
+document.getElementById('clear').addEventListener('click', () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    textObjects.length = 0; // Clear text objects
 });
 
 // Update stroke color and line width
-toolbar.addEventListener('change', e => {
-    if (e.target.id === 'stroke') {
-        ctx.strokeStyle = e.target.value;
-    }
-    if (e.target.id === 'lineWidth') {
-        lineWidth = e.target.value;
-    }
+document.getElementById('stroke').addEventListener('change', (e) => {
+    ctx.strokeStyle = e.target.value;
+});
+document.getElementById('lineWidth').addEventListener('change', (e) => {
+    lineWidth = e.target.value;
 });
 
-// Drawing function
-const draw = (e) => {
-    if (!isPainting) return;
-
-    ctx.lineWidth = lineWidth;
-    ctx.lineCap = 'round';
-    ctx.lineTo(e.clientX - toolbar.offsetWidth - offsetX, e.clientY - offsetY);
-    ctx.stroke();
-}
-
-// Mouse event listeners for drawing
+// Drawing functionality
 canvas.addEventListener('mousedown', (e) => {
-    if (selectedTextIndex !== null) {
-        isDragging = true;
-    } else {
-        isPainting = true;
-        ctx.beginPath();
-        ctx.moveTo(e.clientX - toolbar.offsetWidth - offsetX, e.clientY - offsetY);
-    }
+    isPainting = true;
+    ctx.beginPath();
+    ctx.moveTo(e.clientX - 70, e.clientY); // Adjust for toolbar
 });
 
 canvas.addEventListener('mouseup', () => {
     isPainting = false;
-    isDragging = false;
     ctx.closePath();
+    adjustCanvasSize(); // Check if the canvas needs to expand
 });
 
 canvas.addEventListener('mousemove', (e) => {
-    if (isDragging) {
-        offsetX += e.movementX;
-        offsetY += e.movementY;
-        redraw();
-    } else if (isPainting) {
-        draw(e);
-    }
+    if (!isPainting) return;
+    ctx.lineWidth = lineWidth;
+    ctx.lineCap = 'round';
+    ctx.lineTo(e.clientX - 70, e.clientY);
+    ctx.stroke();
 });
 
 // Handle window resize
 window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth - 70; // Update canvas width
+    canvas.height = window.innerHeight; // Update canvas height
     redraw(); // Redraw content on resize
 });
 
@@ -84,21 +64,20 @@ addTextButton.addEventListener('click', () => {
     const fontSize = fontSizeInput.value;
     const fontStyle = fontStyleSelect.value;
 
-    const textX = (canvas.width / 2) + offsetX; // Center text
-    const textY = (canvas.height / 2) + offsetY; // Center text
+    const textX = (canvas.width / 2) - (ctx.measureText(text).width / 2); // Center text
+    const textY = (canvas.height / 2) + (fontSize / 2); // Center text vertically
 
     if (text.trim()) {
         textObjects.push({ text, x: textX, y: textY, fontSize, fontStyle });
         redraw();
         textInput.value = '';
+        adjustCanvasSize(); // Check if the canvas needs to expand
     }
 });
 
-// Redraw text function
+// Redraw text and drawings
 function redraw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas before redrawing
-    ctx.save();
-    ctx.translate(offsetX, offsetY); // Apply offsets
 
     // Redraw all text objects
     textObjects.forEach(({ text, x, y, fontSize, fontStyle }) => {
@@ -106,39 +85,23 @@ function redraw() {
         ctx.fillStyle = ctx.strokeStyle;
         ctx.fillText(text, x, y);
     });
-
-    ctx.restore();
 }
 
-// Text moving functionality
-canvas.addEventListener('mousedown', (e) => {
-    const mouseX = e.clientX - toolbar.offsetWidth - offsetX;
-    const mouseY = e.clientY - offsetY;
+// Adjust canvas size based on content
+function adjustCanvasSize() {
+    let maxX = canvas.width;
+    let maxY = canvas.height;
 
-    textObjects.forEach((textObj, index) => {
-        ctx.font = `${textObj.fontSize}px ${textObj.fontStyle}`;
-        const textWidth = ctx.measureText(textObj.text).width;
-
-        if (mouseX >= textObj.x && mouseX <= textObj.x + textWidth &&
-            mouseY >= textObj.y - textObj.fontSize && mouseY <= textObj.y) {
-            selectedTextIndex = index;
-        }
+    // Check text objects for boundaries
+    textObjects.forEach(({ x, y, fontSize }) => {
+        const textWidth = ctx.measureText(text).width;
+        if (x + textWidth > maxX) maxX = x + textWidth;
+        if (y + fontSize > maxY) maxY = y + fontSize;
     });
-});
 
-// Mousemove event for dragging text
-canvas.addEventListener('mousemove', (e) => {
-    if (selectedTextIndex !== null) {
-        const mouseX = e.clientX - toolbar.offsetWidth - offsetX;
-        const mouseY = e.clientY - offsetY;
-
-        textObjects[selectedTextIndex].x = mouseX;
-        textObjects[selectedTextIndex].y = mouseY;
-        redraw();
+    // Expand canvas if necessary
+    if (maxX > canvas.width || maxY > canvas.height) {
+        canvas.width = Math.max(maxX, canvas.width);
+        canvas.height = Math.max(maxY, canvas.height);
     }
-});
-
-// Mouseup event to release selected text
-canvas.addEventListener('mouseup', () => {
-    selectedTextIndex = null;
-});
+}
