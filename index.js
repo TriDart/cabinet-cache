@@ -35,7 +35,6 @@ canvas.addEventListener('mousedown', (e) => {
 canvas.addEventListener('mouseup', () => {
     isPainting = false;
     ctx.closePath();
-    adjustCanvasSize(); // Check if the canvas needs to expand
 });
 
 canvas.addEventListener('mousemove', (e) => {
@@ -64,14 +63,15 @@ addTextButton.addEventListener('click', () => {
     const fontSize = fontSizeInput.value;
     const fontStyle = fontStyleSelect.value;
 
-    const textX = (canvas.width / 2) - (ctx.measureText(text).width / 2); // Center text
-    const textY = (canvas.height / 2) + (fontSize / 2); // Center text vertically
-
     if (text.trim()) {
+        const textWidth = ctx.measureText(text).width;
+        const textX = (canvas.width / 2) - (textWidth / 2); // Center text
+        const textY = (canvas.height / 2) + (fontSize / 2); // Center text vertically
+
         textObjects.push({ text, x: textX, y: textY, fontSize, fontStyle });
         redraw();
+        adjustCanvasSize(textX + textWidth, textY + fontSize); // Adjust canvas size
         textInput.value = '';
-        adjustCanvasSize(); // Check if the canvas needs to expand
     }
 });
 
@@ -88,20 +88,51 @@ function redraw() {
 }
 
 // Adjust canvas size based on content
-function adjustCanvasSize() {
-    let maxX = canvas.width;
-    let maxY = canvas.height;
+function adjustCanvasSize(newWidth, newHeight) {
+    const currentWidth = canvas.width;
+    const currentHeight = canvas.height;
 
-    // Check text objects for boundaries
-    textObjects.forEach(({ x, y, fontSize }) => {
-        const textWidth = ctx.measureText(text).width;
-        if (x + textWidth > maxX) maxX = x + textWidth;
-        if (y + fontSize > maxY) maxY = y + fontSize;
-    });
-
-    // Expand canvas if necessary
-    if (maxX > canvas.width || maxY > canvas.height) {
-        canvas.width = Math.max(maxX, canvas.width);
-        canvas.height = Math.max(maxY, canvas.height);
+    // If new size is larger, resize canvas
+    if (newWidth > currentWidth || newHeight > currentHeight) {
+        canvas.width = Math.max(newWidth, currentWidth);
+        canvas.height = Math.max(newHeight, currentHeight);
     }
 }
+
+// Text moving functionality
+let selectedTextIndex = null;
+
+canvas.addEventListener('mousedown', (e) => {
+    const mouseX = e.clientX - 70; // Adjust for toolbar
+    const mouseY = e.clientY;
+
+    // Check if a text object is clicked
+    textObjects.forEach((textObj, index) => {
+        ctx.font = `${textObj.fontSize}px ${textObj.fontStyle}`;
+        const textWidth = ctx.measureText(textObj.text).width;
+
+        if (mouseX >= textObj.x && mouseX <= textObj.x + textWidth &&
+            mouseY >= textObj.y - textObj.fontSize && mouseY <= textObj.y) {
+            selectedTextIndex = index; // Set selected text index
+        }
+    });
+});
+
+canvas.addEventListener('mousemove', (e) => {
+    if (selectedTextIndex !== null) {
+        const mouseX = e.clientX - 70; // Adjust for toolbar
+        const mouseY = e.clientY;
+
+        // Update position of the selected text object
+        textObjects[selectedTextIndex].x = mouseX - (ctx.measureText(textObjects[selectedTextIndex].text).width / 2);
+        textObjects[selectedTextIndex].y = mouseY;
+
+        redraw(); // Redraw text with new position
+        adjustCanvasSize(textObjects[selectedTextIndex].x + ctx.measureText(textObjects[selectedTextIndex].text).width, textObjects[selectedTextIndex].y + parseInt(textObjects[selectedTextIndex].fontSize)); // Adjust canvas size
+    }
+});
+
+// Mouseup event to release selected text
+canvas.addEventListener('mouseup', () => {
+    selectedTextIndex = null; // Deselect text
+});
