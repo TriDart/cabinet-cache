@@ -53,9 +53,6 @@ h1 {
 }
 
 #drawing-board {
-    width: 2000px; /* Large width for scrolling */
-    height: 2000px; /* Large height for scrolling */
-    position: absolute; /* Position it absolutely for scrolling */
-    top: 0;
-    left: 0;
+    background-color: #333; /* Canvas background */
+    position: relative;
 }
