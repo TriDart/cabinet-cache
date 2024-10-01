@@ -2,10 +2,6 @@ const canvas = document.getElementById('drawing-board');
 const toolbar = document.getElementById('toolbar');
 const ctx = canvas.getContext('2d');
 
-// Set initial canvas dimensions
-canvas.width = 2000; // Start with a large width for infinite scrolling
-canvas.height = 2000; // Start with a large height for infinite scrolling
-
 let isPainting = false;
 let isDragging = false;
 let lineWidth = 5;
@@ -20,7 +16,7 @@ let offsetY = 0;
 // Clear the canvas
 toolbar.addEventListener('click', e => {
     if (e.target.id === 'clear') {
-        ctx.clearRect(-offsetX, -offsetY, canvas.width, canvas.height);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         textObjects = [];
     }
 });
@@ -74,8 +70,6 @@ canvas.addEventListener('mousemove', (e) => {
 
 // Handle window resize
 window.addEventListener('resize', () => {
-    canvas.width = canvas.width; // Keep the canvas large
-    canvas.height = canvas.height; // Keep the canvas large
     redraw(); // Redraw content on resize
 });
 
@@ -90,8 +84,8 @@ addTextButton.addEventListener('click', () => {
     const fontSize = fontSizeInput.value;
     const fontStyle = fontStyleSelect.value;
 
-    const textX = canvas.width / 2 + offsetX; // Adjusted position
-    const textY = canvas.height / 2 + offsetY; // Adjusted position
+    const textX = (canvas.width / 2) + offsetX; // Center text
+    const textY = (canvas.height / 2) + offsetY; // Center text
 
     if (text.trim()) {
         textObjects.push({ text, x: textX, y: textY, fontSize, fontStyle });
@@ -102,10 +96,11 @@ addTextButton.addEventListener('click', () => {
 
 // Redraw text function
 function redraw() {
-    ctx.clearRect(-offsetX, -offsetY, canvas.width, canvas.height); // Clear canvas before redrawing
+    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas before redrawing
     ctx.save();
     ctx.translate(offsetX, offsetY); // Apply offsets
 
+    // Redraw all text objects
     textObjects.forEach(({ text, x, y, fontSize, fontStyle }) => {
         ctx.font = `${fontSize}px ${fontStyle}`;
         ctx.fillStyle = ctx.strokeStyle;
